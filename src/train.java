@@ -2,8 +2,8 @@
  * Created by Mark Gavin on 7/16/2017.
  */
 public class train {
-    int numSeats;
-    int freeSeats;
+    private int numSeats;
+    private int freeSeats;
 
     public train(int ns)
     {
@@ -11,10 +11,24 @@ public class train {
         freeSeats = ns;
     }
 
-    public int loadTrain()
+    public void loadTrain()
     {
+        if(freeSeats > 0)
+        {
+            freeSeats--;
+        }
 
     }
+
+    public void unloadTrain()
+    {
+        if(freeSeats < numSeats)
+        {
+            freeSeats++;
+        }
+
+    }
+
 
 
 }

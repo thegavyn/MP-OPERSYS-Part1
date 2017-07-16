@@ -3,4 +3,8 @@
  */
 public class station {
 
+    public train trainInStation;
+
+
+
 }

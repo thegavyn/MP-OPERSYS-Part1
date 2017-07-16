@@ -2,7 +2,9 @@
  * Created by Mark Gavin on 7/16/2017.
  */
 public class passenger {
-    boolean seated;
+
+    public boolean seated;
+    public train seatedIn;
 
     public passenger()
     {
@@ -14,8 +16,13 @@ public class passenger {
 
     }
 
-    public void onBoard()
+    public void onBoard(train T)
     {
         seated = true;
+    }
+
+    public void gettingOff()
+    {
+        seated = false;
     }
 }
