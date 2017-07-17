@@ -1,10 +1,9 @@
 /**
  * Created by Mark Gavin on 7/17/2017.
  */
-public class Passenger {
+public class Passenger implements Runnable{
 
-    public boolean seated;
-    public Train seatedIn;
+    private boolean seated;
     public Station currentStation;
 
     public Passenger()
@@ -14,13 +13,10 @@ public class Passenger {
 
     public void waitForTrain()
     {
-        if(currentStation.meronBa())
-        {
-            ;
-        }
+
     }
 
-    public void onBoard(Train T)
+    public void onBoard(Train t)
     {
         seated = true;
     }
@@ -29,5 +25,11 @@ public class Passenger {
     {
         seated = false;
     }
+
+    public void run()
+    {
+
+    }
+
 }
 

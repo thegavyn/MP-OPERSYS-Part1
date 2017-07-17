@@ -1,7 +1,7 @@
 /**
  * Created by Mark Gavin on 7/17/2017.
  */
-public class Train {
+public class Train implements Runnable{
     private int numSeats;
     private int freeSeats;
     public Station currStation;
@@ -28,4 +28,9 @@ public class Train {
             freeSeats++;
         }
     }
+    public void run()
+    {
+
+    }
+
 }
