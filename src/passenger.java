@@ -1,22 +1,26 @@
 /**
- * Created by Mark Gavin on 7/16/2017.
+ * Created by Mark Gavin on 7/17/2017.
  */
-public class passenger {
+public class Passenger {
 
     public boolean seated;
-    public train seatedIn;
+    public Train seatedIn;
+    public Station currentStation;
 
-    public passenger()
+    public Passenger()
     {
         seated = false;
     }
 
     public void waitForTrain()
     {
-
+        if(currentStation.meronBa())
+        {
+            ;
+        }
     }
 
-    public void onBoard(train T)
+    public void onBoard(Train T)
     {
         seated = true;
     }
@@ -26,3 +30,4 @@ public class passenger {
         seated = false;
     }
 }
+

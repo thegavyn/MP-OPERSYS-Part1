@@ -1,11 +1,12 @@
 /**
- * Created by Mark Gavin on 7/16/2017.
+ * Created by Mark Gavin on 7/17/2017.
  */
-public class train {
+public class Train {
     private int numSeats;
     private int freeSeats;
+    public Station currStation;
 
-    public train(int ns)
+    public Train(int ns)
     {
         numSeats = ns;
         freeSeats = ns;
@@ -26,9 +27,5 @@ public class train {
         {
             freeSeats++;
         }
-
     }
-
-
-
 }
