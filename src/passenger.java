@@ -1,34 +1,38 @@
 /**
  * Created by Mark Gavin on 7/17/2017.
  */
-public class Passenger implements Runnable{
+public class Passenger extends Thread{
 
-    private boolean seated;
+    private Lock seated;
     public Station currentStation;
+    public Station destinationStation;
 
     public Passenger()
     {
-        seated = false;
+        this.start();
     }
 
     public void waitForTrain()
     {
-
+        // Check if currentStation has a train.
+        if (currentStation.getRail().onMe != null) {
+            seated = new Lock();
+        }
     }
 
     public void onBoard(Train t)
     {
-        seated = true;
+        seated.lock();
     }
 
-    public void gettingOff()
+    public void getOff()
     {
-        seated = false;
+        seated.unlock();
     }
 
     public void run()
     {
-
+        this.waitForTrain();
     }
 
 }

@@ -3,13 +3,18 @@
  */
 public class Rail {
     public Train onMe;
-    public int railNo;
+    public boolean thereIs;
+    public Rail nextRail;
+    public Rail prevRail;
 
-    public Rail(int number){
-        railNo = number;
+    public Rail(){
+         thereIs = false;
+         onMe = null;
     }
 
-    public void spawnTrain(int numberSeats) {
-        onMe = new Train(numberSeats);
+    public void lagayTrain(Train incoming)
+    {
+        thereIs = true;
+        onMe = incoming;
     }
 }
