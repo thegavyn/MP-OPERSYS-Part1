@@ -15,6 +15,21 @@ public class Passenger extends Thread {
 
     public void waitForTrain() {
         // Wait until for currentStation to give a signal!!!
+        currentStation.trainArrived_wait();
+        this.onBoard(currentStation.getCurrentlyLoading());
+        //currentStation.trainArrived_signal();
+    }
+
+    public void departTrain(int stationNum)//resets the train
+    {
+            inside = null;
+    }
+    public boolean checkDepart(int stationNum)//checks if this is destination station
+    {
+        if(destinationStationNo == stationNum)
+            return true;
+        else
+            return false;
     }
 
     public void onBoard(Train t) {
@@ -33,7 +48,10 @@ public class Passenger extends Thread {
         return inside;
     }
 
-
+    public void run() {
+        // insert locking stuff here? if needed
+        this.waitForTrain();
+    }
 
 }
 

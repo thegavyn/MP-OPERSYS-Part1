@@ -9,7 +9,8 @@ import java.util.concurrent.locks.Lock;
 public class Station {
     //Conditions
     private Condition trainArrived;
-    private Condition allPassengersSeated;
+    private Condition trainFull;
+    private Lock lock;
     //Variables
     private Station nextStop;
     private int stationNo;
@@ -39,13 +40,18 @@ public class Station {
         trainQueue.add(nextIn);
     }
 
+    public void setCurrentlyLoading() {
+        if (currentlyLoading == null && !trainQueue.isEmpty())
+            currentlyLoading = trainQueue.remove(); // tanggalin si train sa queue, magload siya
+        trainArrived_signal();
+    }
+
     public void loadTrain(int count)
     {
         int numberSeatsAvail, ctr;
         Passenger loading;
-        if(!trainQueue.isEmpty()) // kung may laman si trainQueue
+        if(currentlyLoading != null) // kung may laman si trainQueue
         {
-            currentlyLoading = trainQueue.remove(); // tanggalin si train sa queue, magload siya
             numberSeatsAvail = currentlyLoading.countFreeSeats();
             ctr = 0;
             while(ctr < numberSeatsAvail)
@@ -55,6 +61,7 @@ public class Station {
                 currentlyLoading.passengerArrayList.add(loading); // how do u even loop through dis
                 ctr++;
             }
+            this.trainFull_signal();
 
         }
     }
@@ -84,23 +91,23 @@ public class Station {
         return waiting;
     }
 
+    public void departPasaheros()//depart passengers
+    {
+        int ctr = 0;
+
+        if(currentlyLoading != null)
+        {
+            while(ctr < currentlyLoading.passengerArrayList.size())
+            {
+                currentlyLoading.passengerArrayList.get(ctr).checkDepart(stationNo);
+                currentlyLoading.passengerArrayList.get(ctr).departTrain(stationNo);
+                currentlyLoading.passengerArrayList.remove(ctr);
+                ctr++;
+            }
+        }
+    }
+
     // Sync stuff!!!
-
-    public void allPassengersSeated_wait() {
-        try {
-            allPassengersSeated.await();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void setAllPassengersSeated_signal() {
-        try {
-            allPassengersSeated.signal();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     public void trainArrived_wait() {
         try {
@@ -116,5 +123,25 @@ public class Station {
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void trainFull_wait() {
+        try {
+            trainFull.await();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void trainFull_signal() {
+        try {
+            trainFull.signal();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Lock getLock() {
+        return lock;
     }
 }
