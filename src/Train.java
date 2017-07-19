@@ -7,17 +7,17 @@ import java.util.ArrayList;
 public class Train extends Thread{
     public ArrayList<Passenger> passengerArrayList;
     public Station currStation;
-    public static int numberPass;
+    public final int passengerCapacity;
 
     public Train(int cap)
     {
         passengerArrayList = new ArrayList<Passenger>();
-        numberPass = cap;
+        passengerCapacity = cap;
+        this.start(); // Start thread
     }
 
-
     public int countFreeSeats() {
-        return numberPass - passengerArrayList.size();
+        return passengerCapacity - passengerArrayList.size();
     }
 
 }
