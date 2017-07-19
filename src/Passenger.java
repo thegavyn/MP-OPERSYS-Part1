@@ -3,9 +3,9 @@
  */
 public class Passenger extends Thread{
 
-    private Lock seated;
     public Station currentStation;
     public Station destinationStation;
+    public Train inIt;
 
     public Passenger()
     {
@@ -15,25 +15,19 @@ public class Passenger extends Thread{
     public void waitForTrain()
     {
         // Check if currentStation has a train.
-        if (currentStation.getRail().onMe != null) {
-            seated = new Lock();
+        if (currentStation.boardingNow != null) {
+            inIt = currentStation.boardingNow;
+            onBoard(inIt);
         }
+
     }
 
     public void onBoard(Train t)
     {
-        seated.lock();
+        inIt = t;
     }
 
-    public void getOff()
-    {
-        seated.unlock();
-    }
 
-    public void run()
-    {
-        this.waitForTrain();
-    }
 
 }
 
