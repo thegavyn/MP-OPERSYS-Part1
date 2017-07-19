@@ -1,64 +1,131 @@
 import java.util.ArrayList;
+import java.util.Queue;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Created by Mark Gavin on 7/17/2017.
  */
 public class Station {
+    //Conditions
+    private Condition trainArrived;
+    private Condition trainFull;
+    private Lock lock;
+    //Variables
     private Station nextStop;
     private int stationNo;
-    private ArrayList<Passenger> waiting;
-    public Train boardingNow;
+    private ArrayList<Passenger> waiting; // passengers who want to ride the train
+    private Queue<Train> trainQueue; // queue of trains that are about to grab passengers
+    private Train currentlyLoading;
 
     public Station(int number)
     {
         stationNo = number;
         nextStop = null;
-        boardingNow = null;
     }
 
-    public void spawnPassenger()
+    public void spawnPassenger(int stationDrop)
     {
-        Passenger person = new Passenger();
-        waiting.add(person);
+        Passenger p = new Passenger(stationDrop); // GAVIN BOI PAANO INPUT NATIN NG DESTINATION HAHA
+        waiting.add(p);
     }
 
     public void spawnTrain(int numberSeats) {
-        if(boardingNow == null)
-            boardingNow = new Train(numberSeats);
+        if(trainQueue.isEmpty()) // since walang laman yung queue
+            currentlyLoading = new Train(numberSeats); // direkta nalang na magload
     }
 
     public void receiveTrain(Train nextIn)
     {
-        boardingNow = nextIn;
+        trainQueue.add(nextIn);
+    }
+
+    public void setCurrentlyLoading() {
+        if (currentlyLoading == null && !trainQueue.isEmpty())
+            currentlyLoading = trainQueue.remove(); // tanggalin si train sa queue, magload siya
+        trainArrived_signal();
     }
 
     public void loadTrain(int count)
     {
         int numberSeatsAvail, ctr;
         Passenger loading;
-        if(boardingNow != null)
+        if(currentlyLoading != null) // kung may laman si trainQueue
         {
-            numberSeatsAvail = boardingNow.countFreeSeats();
+            numberSeatsAvail = currentlyLoading.countFreeSeats();
             ctr = 0;
             while(ctr < numberSeatsAvail)
             {
                 loading = waiting.remove(ctr);
-                loading.onBoard(boardingNow);
-                boardingNow.passengerArrayList.add(loading);
+                loading.onBoard(currentlyLoading);
+                currentlyLoading.passengerArrayList.add(loading); // how do u even loop through dis
                 ctr++;
             }
+            this.trainFull_signal();
 
         }
     }
 
     public void sendTrain()
     {
-        nextStop.receiveTrain(this.boardingNow);
-        this.boardingNow = null;
+        nextStop.receiveTrain(currentlyLoading);
+        if(!trainQueue.isEmpty()) // kung may laman si trainQueue
+            currentlyLoading = trainQueue.remove(); // dequeue then set as currently loading
+        else // walang laman
+            currentlyLoading = null;
+    }
+
+    public Station getNextStop() {
+        return nextStop;
+    }
+
+    public void setNextStop(Station stop) {
+        nextStop = stop;
+    }
+
+    public Train getCurrentlyLoading() {
+        return currentlyLoading;
     }
 
     public ArrayList<Passenger> getWaiting() {
         return waiting;
     }
 
+    // Sync stuff!!!
+
+    public void trainArrived_wait() {
+        try {
+            trainArrived.wait();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void trainArrived_signal() {
+        try {
+            trainArrived_signal();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void trainFull_wait() {
+        try {
+            trainFull.await();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void trainFull_signal() {
+        try {
+            trainFull.signal();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Lock getLock() {
+        return lock;
+    }
 }

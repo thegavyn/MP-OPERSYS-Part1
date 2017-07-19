@@ -1,33 +1,45 @@
 /**
  * Created by Mark Gavin on 7/17/2017.
  */
-public class Passenger extends Thread{
+public class Passenger extends Thread {
 
-    public Station currentStation;
-    public Station destinationStation;
-    public Train inIt;
+    private Station currentStation;
+    private Station destinationStation;
+    private int destinationStationNo;
+    private Train inside;
 
-    public Passenger()
-    {
+    public Passenger(int x) {
+        destinationStationNo = x;
         this.start();
     }
 
-    public void waitForTrain()
-    {
-        // Check if currentStation has a train.
-        if (currentStation.boardingNow != null) {
-            inIt = currentStation.boardingNow;
-            onBoard(inIt);
-        }
-
+    public void waitForTrain() {
+        // Wait until for currentStation to give a signal!!!
+        currentStation.trainArrived_wait();
+        this.onBoard(currentStation.getCurrentlyLoading());
+        //currentStation.trainArrived_signal();
     }
 
-    public void onBoard(Train t)
-    {
-        inIt = t;
+    public void onBoard(Train t) {
+        inside = t;
     }
 
+    public Station getCurrentStation() {
+        return currentStation;
+    }
 
+    public Station getDestinationStation() {
+        return destinationStation;
+    }
+
+    public Train getTrainInside() {
+        return inside;
+    }
+
+    public void run() {
+        // insert locking stuff here? if needed
+        this.waitForTrain();
+    }
 
 }
 

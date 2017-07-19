@@ -8,6 +8,8 @@ public class Main {
         Station[] stationList = new Station[8];
         for (int x = 0; x < 8; x++) {
             stationList[x] = new Station(x);
+            if (x == 7)
+                stationList[x].setNextStop(stationList[0]);
         }
 
         // Create trains
