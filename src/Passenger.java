@@ -22,7 +22,7 @@ public class Passenger extends Thread {
         System.out.println("Passenger " + passengerNo + 
             " waiting for train in Station " + currentStation.getStationNo() + ".");
     	while (currentStation.getCurrentlyLoading() == null);
-        	currentStation.trainArrived_wait();
+        	CalTrainII.trainArrived_wait();
         this.onBoard(currentStation.getCurrentlyLoading());
         //currentStation.trainArrived_signal();
     }

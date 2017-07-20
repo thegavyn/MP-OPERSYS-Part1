@@ -38,10 +38,10 @@ public class Main {
                 case 2: // Passenger
                     System.out.print("Enter which station (0-7) to SPAWN passengers: ");
                     whereToSpawn = sc.nextInt();
-                    if (whereToSpawn < 0 || whereToSpawn > 7) {
+                    if (whereToSpawn >= 0 && whereToSpawn <= 7) {
                         System.out.print("Enter which station (0-7) to DROP OFF passengers: ");
                         passengerDestination = sc.nextInt();
-                        if (passengerDestination < 0 || passengerDestination > 7) {
+                        if (passengerDestination >= 0 && passengerDestination <= 7) {
                             System.out.print("Enter no. of passengers to spawn: ");
                             passengersToSpawn = sc.nextInt(); // Get how many to spawn                  
                             while (passengersToSpawn > 0) {
@@ -55,12 +55,12 @@ public class Main {
                     } 
                     break;
                 case 3:
+                    System.out.println("Exiting program...");
                     break;
                 default:
                     System.out.println("Invalid input, doing nothing...");
                     break;
             }
         } while (choice != 3);
-        System.out.println("Exiting program...");
     }
 }
