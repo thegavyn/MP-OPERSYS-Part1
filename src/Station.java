@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Queue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Mark Gavin on 7/17/2017.
@@ -16,14 +17,17 @@ public class Station {
     private Station nextStop;
     private int stationNo;
     private ArrayList<Passenger> waiting; // passengers who want to ride the train
-    private Queue<Train> trainQueue; // queue of trains that are about to grab passengers
+    private ArrayList<Train> trainQueue; // queue of trains that are about to grab passengers
     private Train currentlyLoading;
 
     public Station(int number)
     {
+        trainArrived = new ReentrantLock().newCondition();
+        trainFull = new ReentrantLock().newCondition();
         stationNo = number;
         nextStop = null;
-        trainQueue = null;
+        trainQueue = new ArrayList<Train>();
+        lock = new ReentrantLock();
     }
 
     public void spawnPassenger(int stationDrop)
@@ -36,11 +40,16 @@ public class Station {
     }
 
     public void spawnTrain(int numberSeats) {
-        if(trainQueue == null || trainQueue.isEmpty()) {
-            currentlyLoading = new Train(numberSeats); // direkta nalang na magload
-            System.out.println("Spawned Train " + currentlyLoading.getTrainNo() + ".");
-        } else { // since walang laman yung queue
-            receiveTrain(new Train(numberSeats));
+        Train holder;
+        holder = new Train(numberSeats);
+        holder.setCurrentStation(this);
+        trainQueue.add(holder);
+        setCurrentlyLoading();
+        int ctr = 0;
+        while(ctr < trainQueue.size())
+        {
+            System.out.println(trainQueue.get(ctr).getCurrentStation());
+            ctr++;
         }
     }
 
@@ -53,7 +62,7 @@ public class Station {
 
     public void setCurrentlyLoading() {
         if (currentlyLoading == null && !trainQueue.isEmpty()) {
-            currentlyLoading = trainQueue.remove(); // tanggalin si train sa queue, magload siya
+            currentlyLoading = trainQueue.remove(0); // tanggalin si train sa queue, magload siya
             trainArrived_signal();
             System.out.println("Train " + currentlyLoading.getTrainNo() +
                 " arrived in Station " + getStationNo());
@@ -142,7 +151,7 @@ public class Station {
     public void trainArrived_wait() {
         try {
             
-            trainArrived.wait();
+            trainArrived.await();
         } catch(Exception e) {
             e.printStackTrace();
         }

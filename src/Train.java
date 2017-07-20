@@ -22,7 +22,10 @@ public class Train extends Thread{
         passengerCapacity = cap;
         this.start(); // Start thread
     }
-
+    public void setCurrentStation(Station here)
+    {
+        currentStation = here;
+    }
     public int countFreeSeats() {
         return passengerCapacity - passengerArrayList.size();
     }
@@ -44,13 +47,16 @@ public class Train extends Thread{
     }
 
     public void run() {
-        currentStation.getLock().lock();
+        System.out.println(currentStation);
+        currentStation.getLock().lock();//error here
         currentStation.receiveTrain(this); // park train
         currentStation.getLock().unlock();
 
         currentStation.trainArrived_wait(); // wait hangga't hindi siya yung nagloload ng pasahero
+        System.out.println("Eror here4");
         currentStation.setCurrentlyLoading();
         currentStation.loadTrain(countFreeSeats()); // load train depending on free seats
+        System.out.println("Eror here4");
         currentStation.trainFull_wait();
 
         currentStation.getLock().lock();

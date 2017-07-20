@@ -15,7 +15,7 @@ public class Passenger extends Thread {
         this.start();
         passengersSpawned++;
         passengerNo = passengersSpawned;
-    }
+        }
 
     public void waitForTrain() {
         // Wait until for currentStation to give a signal!!!
