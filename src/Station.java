@@ -46,8 +46,13 @@ public class Station {
         trainArrived_signal();
     }
 
+    public int getStationNo() {
+        return stationNo;
+    }
+
     public void loadTrain(int count)
     {
+    	getLock.lock();  	
         int numberSeatsAvail, ctr;
         Passenger loading;
         if(currentlyLoading != null) // kung may laman si trainQueue
@@ -62,8 +67,9 @@ public class Station {
                 ctr++;
             }
             this.trainFull_signal();
-
         }
+        
+        getLock.unlock();
     }
 
     public void sendTrain()
@@ -93,6 +99,7 @@ public class Station {
 
     public void departPasaheros()//depart passengers
     {
+    	getLock().lock();
         int ctr = 0;
 
         if(currentlyLoading != null)
@@ -105,6 +112,7 @@ public class Station {
                 ctr++;
             }
         }
+        getLock().unlock();
     }
 
     // Sync stuff!!!

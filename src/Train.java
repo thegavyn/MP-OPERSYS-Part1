@@ -8,12 +8,16 @@ import java.util.concurrent.locks.Condition;
 public class Train extends Thread{
 
     /* Variables */
-    public ArrayList<Passenger> passengerArrayList;
-    public Station currentStation;
-    public final int passengerCapacity;
+    private ArrayList<Passenger> passengerArrayList;
+    private Station currentStation;
+    private final int passengerCapacity;
+    public static int trainsSpawned;
+    private final int trainNo;
 
     public Train(int cap)
     {
+        trainsSpawned++;
+        trainNo = trainsSpawned;
         passengerArrayList = new ArrayList<Passenger>();
         passengerCapacity = cap;
         this.start(); // Start thread
@@ -21,6 +25,22 @@ public class Train extends Thread{
 
     public int countFreeSeats() {
         return passengerCapacity - passengerArrayList.size();
+    }
+    
+    public ArrayList<Passenger> getPassengers() {
+    	return passengerArrayList;
+    }
+    
+    public Station getCurrentStation() {
+    	return currentStation;
+    }
+    
+    public int getCapacity() {
+    	return passengerCapacity;
+    }
+
+    public int gettrainNo() {
+        return trainNo;
     }
 
     public void run() {
