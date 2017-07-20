@@ -11,6 +11,7 @@ public class Station {
     private Condition trainArrived;
     private Condition trainFull;
     private Lock lock;
+    
     //Variables
     private Station nextStop;
     private int stationNo;
@@ -22,6 +23,7 @@ public class Station {
     {
         stationNo = number;
         nextStop = null;
+        trainQueue = null;
     }
 
     public void spawnPassenger(int stationDrop)
@@ -34,10 +36,12 @@ public class Station {
     }
 
     public void spawnTrain(int numberSeats) {
-        if(trainQueue.isEmpty()) {
+        if(trainQueue == null || trainQueue.isEmpty()) {
             currentlyLoading = new Train(numberSeats); // direkta nalang na magload
             System.out.println("Spawned Train " + currentlyLoading.getTrainNo() + ".");
-        } // since walang laman yung queue
+        } else { // since walang laman yung queue
+            receiveTrain(new Train(numberSeats));
+        }
     }
 
     public void receiveTrain(Train nextIn)
