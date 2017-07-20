@@ -28,22 +28,22 @@ public class Station {
     {
         Passenger p = new Passenger(stationDrop); // GAVIN BOI PAANO INPUT NATIN NG DESTINATION HAHA
         waiting.add(p);
-        System.out.println("Spawned Passenger " + p.getPassengerNo() + 
+        System.out.println("Spawned Passenger " + p.getpassengerNo() +
             "in Station " + getStationNo() +
-            ". Destination is Station " + p.getDestinationStation().getStationNo + ".");
+            ". Destination is Station " + p.getDestinationStation().getStationNo() + ".");
     }
 
     public void spawnTrain(int numberSeats) {
         if(trainQueue.isEmpty()) {
             currentlyLoading = new Train(numberSeats); // direkta nalang na magload
-            System.out.println("Spawned Train " + trainNo + ".");
+            System.out.println("Spawned Train " + currentlyLoading.getTrainNo() + ".");
         } // since walang laman yung queue
     }
 
     public void receiveTrain(Train nextIn)
     {
         trainQueue.add(nextIn);
-        System.out.println("Train " + nextIn.getTrainNo + 
+        System.out.println("Train " + nextIn.getTrainNo() +
             "enqueued in Station " + getStationNo() + ".");
     }
 
@@ -51,7 +51,7 @@ public class Station {
         if (currentlyLoading == null && !trainQueue.isEmpty()) {
             currentlyLoading = trainQueue.remove(); // tanggalin si train sa queue, magload siya
             trainArrived_signal();
-            System.out.println("Train " + currentLoading.getTrainNo() + 
+            System.out.println("Train " + currentlyLoading.getTrainNo() +
                 " arrived in Station " + getStationNo());
         }
     }
@@ -84,7 +84,7 @@ public class Station {
 
     public void sendTrain() {
         nextStop.receiveTrain(currentlyLoading);
-        System.out.println("Train " + currentLoading.getTrainNo() + 
+        System.out.println("Train " + currentlyLoading.getTrainNo() +
                 " leaving Station " + getStationNo());
         if(!trainQueue.isEmpty()) {
             // kung may laman si trainQueue
