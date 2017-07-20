@@ -52,7 +52,7 @@ public class Station {
 
     public void loadTrain(int count)
     {
-    	getLock.lock();  	
+    	getLock().lock();
         int numberSeatsAvail, ctr;
         Passenger loading;
         if(currentlyLoading != null) // kung may laman si trainQueue
@@ -63,13 +63,13 @@ public class Station {
             {
                 loading = waiting.remove(ctr);
                 loading.onBoard(currentlyLoading);
-                currentlyLoading.passengerArrayList.add(loading); // how do u even loop through dis
+                currentlyLoading.getPassengers().add(loading); // how do u even loop through dis
                 ctr++;
             }
             this.trainFull_signal();
         }
         
-        getLock.unlock();
+        getLock().unlock();
     }
 
     public void sendTrain()
@@ -104,11 +104,11 @@ public class Station {
 
         if(currentlyLoading != null)
         {
-            while(ctr < currentlyLoading.passengerArrayList.size())
+            while(ctr < currentlyLoading.getPassengers().size())
             {
-                currentlyLoading.passengerArrayList.get(ctr).checkDepart(stationNo);
-                currentlyLoading.passengerArrayList.get(ctr).departTrain(stationNo);
-                currentlyLoading.passengerArrayList.remove(ctr);
+                currentlyLoading.getPassengers().get(ctr).checkDepart(stationNo);
+                currentlyLoading.getPassengers().get(ctr).departTrain(stationNo);
+                currentlyLoading.getPassengers().remove(ctr);
                 ctr++;
             }
         }

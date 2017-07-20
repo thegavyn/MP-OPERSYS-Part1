@@ -39,7 +39,7 @@ public class Train extends Thread{
     	return passengerCapacity;
     }
 
-    public int gettrainNo() {
+    public int getTrainNo() {
         return trainNo;
     }
 
