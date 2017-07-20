@@ -15,14 +15,12 @@ public class Passenger extends Thread {
         this.start();
         passengersSpawned++;
         passengerNo = passengersSpawned;
-        System.out.println("Spawned Passenger " + passengerNo + "in Station " + currentStation.getStationNo() +
-            ". Destination is Station " + destinationStation.getStationNo());
     }
 
     public void waitForTrain() {
         // Wait until for currentStation to give a signal!!!
         System.out.println("Passenger " + passengerNo + 
-            " waiting for train in Station " + currentStation.getStationNo());
+            " waiting for train in Station " + currentStation.getStationNo() + ".");
     	while (currentStation.getCurrentlyLoading() == null);
         	currentStation.trainArrived_wait();
         this.onBoard(currentStation.getCurrentlyLoading());
@@ -32,7 +30,8 @@ public class Passenger extends Thread {
     public void departTrain(int stationNum)//resets the train
     {
             inside = null;
-            System.out.println("Passenger " + passengerNo + " departed from Station " + stationNum);
+            System.out.println("Passenger " + passengerNo + 
+                " departed from Station " + stationNum + ".");
     }
     public boolean checkDepart(int stationNum)//checks if this is destination station
     {
@@ -44,7 +43,8 @@ public class Passenger extends Thread {
 
     public void onBoard(Train t) {
         inside = t;
-        System.out.println("Passenger " + passengerNo + " boarded Train " + inside.getTrainNo());
+        System.out.println("Passenger " + passengerNo +
+            " boarded Train " + inside.getTrainNo() + ".");
     }
 
     public Station getCurrentStation() {

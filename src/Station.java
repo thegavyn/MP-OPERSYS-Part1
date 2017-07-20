@@ -28,22 +28,32 @@ public class Station {
     {
         Passenger p = new Passenger(stationDrop); // GAVIN BOI PAANO INPUT NATIN NG DESTINATION HAHA
         waiting.add(p);
+        System.out.println("Spawned Passenger " + p.getPassengerNo() + 
+            "in Station " + getStationNo() +
+            ". Destination is Station " + p.getDestinationStation().getStationNo + ".");
     }
 
     public void spawnTrain(int numberSeats) {
-        if(trainQueue.isEmpty()) // since walang laman yung queue
+        if(trainQueue.isEmpty()) {
             currentlyLoading = new Train(numberSeats); // direkta nalang na magload
+            System.out.println("Spawned Train " + trainNo + ".");
+        } // since walang laman yung queue
     }
 
     public void receiveTrain(Train nextIn)
     {
         trainQueue.add(nextIn);
+        System.out.println("Train " + nextIn.getTrainNo + 
+            "enqueued in Station " + getStationNo() + ".");
     }
 
     public void setCurrentlyLoading() {
-        if (currentlyLoading == null && !trainQueue.isEmpty())
+        if (currentlyLoading == null && !trainQueue.isEmpty()) {
             currentlyLoading = trainQueue.remove(); // tanggalin si train sa queue, magload siya
-        trainArrived_signal();
+            trainArrived_signal();
+            System.out.println("Train " + currentLoading.getTrainNo() + 
+                " arrived in Station " + getStationNo());
+        }
     }
 
     public int getStationNo() {
@@ -72,13 +82,19 @@ public class Station {
         getLock().unlock();
     }
 
-    public void sendTrain()
-    {
+    public void sendTrain() {
         nextStop.receiveTrain(currentlyLoading);
-        if(!trainQueue.isEmpty()) // kung may laman si trainQueue
-            currentlyLoading = trainQueue.remove(); // dequeue then set as currently loading
-        else // walang laman
+        System.out.println("Train " + currentLoading.getTrainNo() + 
+                " leaving Station " + getStationNo());
+        if(!trainQueue.isEmpty()) {
+            // kung may laman si trainQueue
+            setCurrentlyLoading();
+        }
+        else {
+            // walang laman
             currentlyLoading = null;
+            System.out.println("No train loading in Station " + getStationNo());
+        }
     }
 
     public Station getNextStop() {
@@ -99,7 +115,8 @@ public class Station {
 
     public void departPasaheros()//depart passengers
     {
-    	getLock().lock();
+        getLock().lock();
+        System.out.println("Station " + getStationNo() + " locked.");
         int ctr = 0;
 
         if(currentlyLoading != null)
@@ -113,12 +130,14 @@ public class Station {
             }
         }
         getLock().unlock();
+        System.out.println("Station " + getStationNo() + " unlocked.");
     }
 
     // Sync stuff!!!
 
     public void trainArrived_wait() {
         try {
+            
             trainArrived.wait();
         } catch(Exception e) {
             e.printStackTrace();
@@ -127,7 +146,7 @@ public class Station {
 
     public void trainArrived_signal() {
         try {
-            trainArrived_signal();
+            trainArrived.signal();
         } catch(Exception e) {
             e.printStackTrace();
         }
