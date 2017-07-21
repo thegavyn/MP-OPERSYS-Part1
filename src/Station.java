@@ -1,11 +1,17 @@
 import java.util.ArrayList;
 import java.util.Queue;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Mark Gavin on 7/17/2017.
  */
 public class Station {
     //Conditions
+    private Condition trainArrived;
+    private Condition trainFull;
+    private Lock lock;
     
     //Variables
     private Station nextStop;
@@ -16,9 +22,12 @@ public class Station {
 
     public Station(int number)
     {
+        trainArrived = new ReentrantLock().newCondition();
+        trainFull = new ReentrantLock().newCondition();
         stationNo = number;
         nextStop = null;
         trainQueue = new ArrayList<Train>();
+        lock = new ReentrantLock();
     }
 
     public void spawnPassenger(int stationDrop)
@@ -30,18 +39,6 @@ public class Station {
             ". Destination is Station " + p.getDestinationStation().getStationNo() + ".");
     }
 
-    public void spawnTrain(int numberSeats) {
-        Train holder;
-        holder = new Train(numberSeats, this);
-        setCurrentlyLoading();
-        int ctr = 0;
-        while(ctr < trainQueue.size())
-        {
-            System.out.println(trainQueue.get(ctr).getCurrentStation());
-            ctr++;
-        }
-    }
-
     public void receiveTrain(Train nextIn)
     {
         trainQueue.add(nextIn);
@@ -50,12 +47,9 @@ public class Station {
     }
 
     public void setCurrentlyLoading() {
-        CalTrainII.trainLeaving_wait();
-        if (currentlyLoading == null && !trainQueue.isEmpty()) {
-            currentlyLoading = trainQueue.remove(0); // tanggalin si train sa queue, magload siya
-            CalTrainII.trainArrived_signal();
-            System.out.println("Train " + currentlyLoading.getTrainNo() +
-                " arrived in Station " + getStationNo());
+        if (trainQueue.size() > 0)
+        {
+            currentlyLoading = trainQueue.get(0);
         }
     }
 
@@ -65,7 +59,7 @@ public class Station {
 
     public void loadTrain(int count)
     {
-    	CalTrainII.getLock().lock();
+    	getLock().lock();
         int numberSeatsAvail, ctr;
         Passenger loading;
         if(currentlyLoading != null) // kung may laman si trainQueue
@@ -79,30 +73,24 @@ public class Station {
                 currentlyLoading.getPassengers().add(loading); // how do u even loop through dis
                 ctr++;
             }
-            CalTrainII.trainFull_signal();
+            this.trainFull_signal();
         }
         
-        CalTrainII.getLock().unlock();
+        getLock().unlock();
     }
 
     public void sendTrain() {
-        if (currentlyLoading != null) {
-            nextStop.receiveTrain(currentlyLoading);
-            System.out.println("Train " + currentlyLoading.getTrainNo() +
-                    " leaving Station " + getStationNo());
-            CalTrainII.trainLeaving_signal();
-            if(!trainQueue.isEmpty()) {
-                // kung may laman si trainQueue
-                setCurrentlyLoading();
-            }
-            else {
-                // walang laman
-                currentlyLoading = null;
-                System.out.println("No train loading in Station " + getStationNo());
-            }
-        } else {
-            System.out.println("No train is loading, no train leaving Station " 
-                + currentlyLoading.getTrainNo() + ".");
+        nextStop.receiveTrain(currentlyLoading);
+        System.out.println("Train " + currentlyLoading.getTrainNo() +
+                " leaving Station " + getStationNo());
+        if(!trainQueue.isEmpty()) {
+            // kung may laman si trainQueue
+            setCurrentlyLoading();
+        }
+        else {
+            // walang laman
+            currentlyLoading = null;
+            System.out.println("No train loading in Station " + getStationNo());
         }
     }
 
@@ -124,7 +112,7 @@ public class Station {
 
     public void departPasaheros()//depart passengers
     {
-        CalTrainII.getLock().lock();
+        getLock().lock();
         System.out.println("Station " + getStationNo() + " locked.");
         int ctr = 0;
 
@@ -138,7 +126,46 @@ public class Station {
                 ctr++;
             }
         }
-        CalTrainII.getLock().unlock();
+        getLock().unlock();
         System.out.println("Station " + getStationNo() + " unlocked.");
+    }
+
+    // Sync stuff!!!
+
+    public void trainArrived_wait() {
+        try {
+            
+            trainArrived.await();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void trainArrived_signal() {
+        try {
+            trainArrived.signalAll();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void trainFull_wait() {
+        try {
+            trainFull.await();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void trainFull_signal() {
+        try {
+            trainFull.signal();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Lock getLock() {
+        return lock;
     }
 }

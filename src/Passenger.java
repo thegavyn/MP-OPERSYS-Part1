@@ -18,12 +18,16 @@ public class Passenger extends Thread {
         }
 
     public void waitForTrain() {
+
         // Wait until for currentStation to give a signal!!!
         System.out.println("Passenger " + passengerNo + 
             " waiting for train in Station " + currentStation.getStationNo() + ".");
-    	while (currentStation.getCurrentlyLoading() == null);
-        	CalTrainII.trainArrived_wait();
+        currentStation.trainArrived_wait();
+        currentStation.getLock().lock();
         this.onBoard(currentStation.getCurrentlyLoading());
+
+        currentStation.getLock().unlock();
+
         //currentStation.trainArrived_signal();
     }
 

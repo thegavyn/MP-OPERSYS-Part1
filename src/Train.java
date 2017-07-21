@@ -14,13 +14,12 @@ public class Train extends Thread{
     public static int trainsSpawned;
     private final int trainNo;
 
-    public Train(int cap, Station station)
+    public Train(int cap)
     {
         trainsSpawned++;
         trainNo = trainsSpawned;
         passengerArrayList = new ArrayList<Passenger>();
         passengerCapacity = cap;
-        currentStation = station;
         this.start(); // Start thread
     }
     public void setCurrentStation(Station here)
@@ -47,30 +46,23 @@ public class Train extends Thread{
         return trainNo;
     }
 
-    public synchronized void run() {
-        System.out.println("Train " + getTrainNo() + " in Station " + currentStation.getStationNo());
-        CalTrainII.getLock().lock();
-        try {
-            currentStation.receiveTrain(this); // park train
-        }
-        finally {
-            CalTrainII.getLock().unlock(); //error here
-        }
-        
-        CalTrainII.getLock().lock();
-        CalTrainII.trainArrived_wait(); // wait hangga't hindi siya yung nagloload ng pasahero
-        CalTrainII.getLock().unlock();
-        System.out.println("Eror here4");
+    public void run() {
+        System.out.println(currentStation);
+        currentStation.getLock().lock();//boarding here
+        currentStation.receiveTrain(this); // park train
+        currentStation.trainArrived_signal();//for passengers to enter
+        currentStation.getLock().unlock();
+
+            /*
         currentStation.setCurrentlyLoading();
         currentStation.loadTrain(countFreeSeats()); // load train depending on free seats
         System.out.println("Eror here4");
-        CalTrainII.getLock().lock();
-        CalTrainII.trainFull_wait();
-        CalTrainII.getLock().unlock();
+        currentStation.trainFull_wait();
 
-        CalTrainII.getLock().lock();
+        currentStation.getLock().lock();
         currentStation.sendTrain();
-        CalTrainII.getLock().unlock();
+        currentStation.getLock().unlock();
+        */
     }
 
 }
