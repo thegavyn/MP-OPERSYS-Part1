@@ -9,76 +9,184 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Station {
     //Conditions
-    private Condition trainArrived;
-    private Condition trainFull;
+
     private Lock lock;
-    
+    private Condition trainArrived;
+    private Condition trainLeaving;
+
     //Variables
     private Station nextStop;
     private int stationNo;
     private ArrayList<Passenger> waiting; // passengers who want to ride the train
     private ArrayList<Train> trainQueue; // queue of trains that are about to grab passengers
     private Train currentlyLoading;
+    private boolean isLoaded;
+    public boolean isSpawn;
 
     public Station(int number)
     {
+
         trainArrived = new ReentrantLock().newCondition();
-        trainFull = new ReentrantLock().newCondition();
+        trainLeaving = new ReentrantLock().newCondition();
         stationNo = number;
         nextStop = null;
         trainQueue = new ArrayList<Train>();
+        waiting = new ArrayList<Passenger>();
         lock = new ReentrantLock();
+        trainArrived = lock.newCondition();
+        trainLeaving = lock.newCondition();
+        isLoaded = false;
+        if(number == 0)
+            isSpawn = true;
+        else
+            isSpawn = false;
     }
 
-    public void spawnPassenger(int stationDrop)
+    /*
+        Check if may naka-assign na train sa loob ng station
+     */
+    public boolean checkAssignment()
     {
-        Passenger p = new Passenger(stationDrop); // GAVIN BOI PAANO INPUT NATIN NG DESTINATION HAHA
+        return isLoaded;
+    }
+
+    /*
+        Spawn passenger inside station
+     */
+    public void spawnPassenger(int stationDrop, Station s, Station d)
+    {
+        Passenger p = new Passenger(stationDrop, s, d);
         waiting.add(p);
+        System.out.println(waiting.size());
         System.out.println("Spawned Passenger " + p.getpassengerNo() +
             "in Station " + getStationNo() +
             ". Destination is Station " + p.getDestinationStation().getStationNo() + ".");
     }
 
+    /*
+        Spawn train (from STATION 0 ONLY)
+     */
+    public void spawnTrain(int numberSeats) {
+        //System.out.println("Hello1");
+        Train holder;
+        holder = new Train(numberSeats, this);
+        //System.out.println("Hello2");
+        receiveTrain(holder);
+        System.out.println("Created");
+        //System.out.println("Hello3");
+    }
+    public void onBoard(Passenger x) {
+        currentlyLoading.addPassenger(x);
+
+    }
+
+    /*
+        Enqueue train in station
+     */
     public void receiveTrain(Train nextIn)
     {
         trainQueue.add(nextIn);
+        /*
         System.out.println("Train " + nextIn.getTrainNo() +
-            "enqueued in Station " + getStationNo() + ".");
+            " enqueued in Station " + getStationNo() + ".");
+            */
+    }
+    public int getqSize()
+    {
+        return trainQueue.size();
     }
 
+    /*
+        Load head of station queue
+     */
     public void setCurrentlyLoading() {
         if (trainQueue.size() > 0)
         {
             currentlyLoading = trainQueue.get(0);
+            isLoaded = true;
         }
     }
-
-    public int getStationNo() {
-        return stationNo;
-    }
-
-    public void loadTrain(int count)
+    public void station_load_train(Train tobeLoaded)
     {
-    	getLock().lock();
-        int numberSeatsAvail, ctr;
-        Passenger loading;
-        if(currentlyLoading != null) // kung may laman si trainQueue
-        {
-            numberSeatsAvail = currentlyLoading.countFreeSeats();
-            ctr = 0;
-            while(ctr < numberSeatsAvail)
-            {
-                loading = waiting.remove(ctr);
-                loading.onBoard(currentlyLoading);
-                currentlyLoading.getPassengers().add(loading); // how do u even loop through dis
-                ctr++;
-            }
-            this.trainFull_signal();
+        if(this.isSpawn == false)
+            this.receiveTrain(tobeLoaded);
+        System.out.println(this.getqSize());
+        this.getLock().lock();//boarding here
+        this.setCurrentlyLoading();//set currently loading train
+        System.out.println(currentlyLoading);
+        if(waiting.size() > 0) {
+            try {
+                trainArrived.signalAll();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } //signals the others train has arrived
+            try {
+                trainLeaving.await();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } //waits for train to be full
+            System.out.println("Done Boarding Passengers");
         }
-        
-        getLock().unlock();
+        this.getLock().unlock();
     }
 
+    /*
+        Load passengers inside train
+     */
+    public void station_wait_for_train(Passenger x) {
+        /*
+synchronized (x) {
+    x.wait();
+}
+*/
+        // Wait until for currentStation to give a signal!!!
+        this.getLock().lock();
+        trainArrived_wait();
+        //System.out.println("Kow Kow Kow");
+        this.onBoard(x);
+        System.out.println("Boarded Train" + currentlyLoading.getName() + x.getName());
+        if(currentlyLoading.countFreeSeats() == 0 || waiting.size() == 0) {
+            trainFull_signal();
+            System.out.println("Leaving the Station");
+        }
+        System.out.println("Current Number of Free Seats on currentlyBoarding " + currentlyLoading.countFreeSeats());
+        this.getLock().unlock();
+
+        //currentStation.trainArrived_signal();
+    }
+    /*
+    public void loadTrain(Passenger tobeSeated)
+    {
+        try {
+            int numberSeatsAvail, ctr;
+            Passenger loading;
+            if (currentlyLoading != null) // kung may laman si trainQueue
+            {
+                numberSeatsAvail = currentlyLoading.countFreeSeats();
+                System.out.println("Hello1");
+                ctr = 0;
+                while (ctr < numberSeatsAvail) {
+                    System.out.println(waiting.size());
+                    loading = waiting.remove(ctr);
+                    System.out.println("Hello2");
+                    loading.onBoard(currentlyLoading);
+                    System.out.println("Hello3");
+                    currentlyLoading.getPassengers().add(loading); // how do u even loop through dis
+                    System.out.println("Hello4");
+                    ctr++;
+                }
+                this.trainFull_signal();
+            }
+        }catch(Exception e){
+            System.out.println(e);
+        }
+
+    }
+    */
+
+    /*
+        Send off train to next station
+     */
     public void sendTrain() {
         nextStop.receiveTrain(currentlyLoading);
         System.out.println("Train " + currentlyLoading.getTrainNo() +
@@ -94,23 +202,11 @@ public class Station {
         }
     }
 
-    public Station getNextStop() {
-        return nextStop;
-    }
 
-    public void setNextStop(Station stop) {
-        nextStop = stop;
-    }
-
-    public Train getCurrentlyLoading() {
-        return currentlyLoading;
-    }
-
-    public ArrayList<Passenger> getWaiting() {
-        return waiting;
-    }
-
-    public void departPasaheros()//depart passengers
+    /*
+        Depart passengers
+     */
+    public void departPasaheros()
     {
         getLock().lock();
         System.out.println("Station " + getStationNo() + " locked.");
@@ -130,11 +226,40 @@ public class Station {
         System.out.println("Station " + getStationNo() + " unlocked.");
     }
 
-    // Sync stuff!!!
+    /*------------------------------------------
+     *
+     *          SETTERS AND GETTERS
+     *
+     *-----------------------------------------*/
+    public Station getNextStop() {
+        return nextStop;
+    }
+
+    public void setNextStop(Station stop) {
+        nextStop = stop;
+    }
+
+    public Train getCurrentlyLoading() {
+        return currentlyLoading;
+    }
+
+    public ArrayList<Passenger> getWaiting() {
+        return waiting;
+    }
+
+    public int getStationNo() {
+        return stationNo;
+    }
+
+    /*------------------------------------------
+     *
+     *          SYNCHRONIZATION STUFF
+     *
+     *-----------------------------------------*/
 
     public void trainArrived_wait() {
         try {
-            
+
             trainArrived.await();
         } catch(Exception e) {
             e.printStackTrace();
@@ -151,7 +276,7 @@ public class Station {
 
     public void trainFull_wait() {
         try {
-            trainFull.await();
+            trainLeaving.await();
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -159,7 +284,7 @@ public class Station {
 
     public void trainFull_signal() {
         try {
-            trainFull.signal();
+            trainLeaving.signal();
         } catch(Exception e) {
             e.printStackTrace();
         }

@@ -14,13 +14,16 @@ public class Train extends Thread{
     public static int trainsSpawned;
     private final int trainNo;
 
-    public Train(int cap)
+
+    public Train(int cap, Station here)
     {
         trainsSpawned++;
         trainNo = trainsSpawned;
         passengerArrayList = new ArrayList<Passenger>();
         passengerCapacity = cap;
-        this.start(); // Start thread
+        currentStation = here;
+
+      this.start(); // Start thread
     }
     public void setCurrentStation(Station here)
     {
@@ -37,25 +40,51 @@ public class Train extends Thread{
     public Station getCurrentStation() {
     	return currentStation;
     }
-    
-    public int getCapacity() {
-    	return passengerCapacity;
-    }
 
     public int getTrainNo() {
         return trainNo;
     }
+    public int getNumberofPassengers(){
+        return passengerArrayList.size();
+    }
+    public void addPassenger(Passenger x)
+    {
+        passengerArrayList.add(x);
+    }
 
     public void run() {
-        System.out.println(currentStation);
-        currentStation.getLock().lock();//boarding here
-        currentStation.receiveTrain(this); // park train
-        currentStation.trainArrived_signal();//for passengers to enter
-        currentStation.getLock().unlock();
+        System.out.println("nakapasok");
+        int ctr = 0;
 
-            /*
+        while(true) {
+
+            if(currentStation.isSpawn == true && ctr == 0) {
+                this.currentStation.station_load_train(this);
+                currentStation.sendTrain();
+                currentStation = currentStation.getNextStop();
+                currentStation.receiveTrain(this);
+            }
+            else{
+                this.currentStation.departPasaheros();
+                this.currentStation.station_load_train(this);
+                currentStation.sendTrain();
+                currentStation = currentStation.getNextStop();
+                currentStation.receiveTrain(this);
+            }
+            ctr++;
+        }
+    /* /*
+         // park train currentStation.trainArrived_signal();//for passengers to enter
+        if(currentStation.isSpawn == false)
+            currentStation.receiveTrain(this);
+        System.out.println(currentStation.getqSize());
+        currentStation.getLock().lock();//boarding here
         currentStation.setCurrentlyLoading();
-        currentStation.loadTrain(countFreeSeats()); // load train depending on free seats
+        System.out.println(currentStation.getCurrentlyLoading());
+        currentStation.getLock().unlock();
+        //currentStation.loadTrain(countFreeSeats()); // load train depending on free seats
+            /*
+
         System.out.println("Eror here4");
         currentStation.trainFull_wait();
 

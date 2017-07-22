@@ -16,25 +16,38 @@ public class Main {
         Station[] stationList = new Station[8];
         for (int x = 0; x < 8; x++) {
             stationList[x] = new Station(x);
+            System.out.println(stationList[x]);
             if (x == 7)
                 stationList[x].setNextStop(stationList[0]);
+        }
+        for (int x = 0; x < 8; x++) {
+            if (x == 7)
+                stationList[x].setNextStop(stationList[0]);
+            else
+                stationList[x].setNextStop(stationList[x + 1]);
         }
 
         // Create trains / passengers
         do {
-            int trainCapacity, passengersToSpawn, whereToSpawn, passengerDestination;
-            System.out.println("1 : Spawn a train");
+            int trainCapacity, passengersToSpawn, trainsToSpawn, whereToSpawn, passengerDestination;
+            System.out.println("1 : Spawn Train");
             System.out.println("2 : Spawn passengers");
             System.out.println("3 : Exit");
             System.out.println("Enter choice: ");
             choice = sc.nextInt();
-                
+
             switch(choice) {
                 case 1: // Train
                     System.out.println("Enter capacity: ");
                     trainCapacity = sc.nextInt(); // Get train capacity
-                    stationList[0].spawnTrain(trainCapacity);
-
+                    System.out.println(stationList[0]);
+                    System.out.print("Enter no. of trains to spawn: ");
+                    trainsToSpawn = sc.nextInt(); // Get how many to spawn  d
+                    while(trainsToSpawn > 0) {
+                        stationList[0].spawnTrain(trainCapacity);
+                        //stationList[0].getWaiting().size();
+                        trainsToSpawn--;
+                    }
                     break;
                 case 2: // Passenger
                     System.out.print("Enter which station (0-7) to SPAWN passengers: ");
@@ -42,11 +55,12 @@ public class Main {
                     if (whereToSpawn >= 0 || whereToSpawn < 7) {
                         System.out.print("Enter which station (0-7) to DROP OFF passengers: ");
                         passengerDestination = sc.nextInt();
-                        if (passengerDestination < 0 || passengerDestination > 7) {
+                        if (passengerDestination >= 0 || passengerDestination <= 7) {
                             System.out.print("Enter no. of passengers to spawn: ");
-                            passengersToSpawn = sc.nextInt(); // Get how many to spawn                  
+                            passengersToSpawn = sc.nextInt(); // Get how many to spawn  d
+                            System.out.println("papasok");
                             while (passengersToSpawn > 0) {
-                                stationList[whereToSpawn].spawnPassenger(passengerDestination); //spawn passenger
+                                stationList[whereToSpawn].spawnPassenger(passengerDestination, stationList[whereToSpawn], stationList[passengerDestination]); //spawn passenger
                                 passengersToSpawn--;
                             }
                         }

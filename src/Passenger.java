@@ -10,45 +10,29 @@ public class Passenger extends Thread {
     private final int passengerNo;
     public static int passengersSpawned;
 
-    public Passenger(int x) {
+    public Passenger(int x, Station current, Station destination) {
+        currentStation = current;
+        destinationStation = destination;
         destinationStationNo = x;
         this.start();
         passengersSpawned++;
         passengerNo = passengersSpawned;
         }
 
-    public void waitForTrain() {
 
-        // Wait until for currentStation to give a signal!!!
-        System.out.println("Passenger " + passengerNo + 
-            " waiting for train in Station " + currentStation.getStationNo() + ".");
-        currentStation.trainArrived_wait();
-        currentStation.getLock().lock();
-        this.onBoard(currentStation.getCurrentlyLoading());
-
-        currentStation.getLock().unlock();
-
-        //currentStation.trainArrived_signal();
-    }
 
     public void departTrain(int stationNum)//resets the train
     {
             inside = null;
             System.out.println("Passenger " + passengerNo + 
-                " departed from Station " + stationNum + ".");
+                " departed In Station " + (stationNum+1)  + ".");
     }
     public boolean checkDepart(int stationNum)//checks if this is destination station
     {
-        if(destinationStationNo == stationNum)
+        if(destinationStationNo == stationNum + 1)
             return true;
         else
             return false;
-    }
-
-    public void onBoard(Train t) {
-        inside = t;
-        System.out.println("Passenger " + passengerNo +
-            " boarded Train " + inside.getTrainNo() + ".");
     }
 
     public Station getCurrentStation() {
@@ -69,7 +53,8 @@ public class Passenger extends Thread {
 
     public void run() {
         // insert locking stuff here? if needed
-        this.waitForTrain();
+        currentStation.station_wait_for_train(this);
+        //currentStation.loadTrain(this);
     }
 
 }
