@@ -39,26 +39,26 @@ public class Main {
             switch(choice) {
                 case 1: // Train
                     System.out.println("Enter capacity: ");
-                    trainCapacity = sc.nextInt(); // Get train capacity
+                    trainCapacity = sc.nextInt();
                     System.out.println(stationList[0]);
                     System.out.print("Enter no. of trains to spawn: ");
-                    trainsToSpawn = sc.nextInt(); // Get how many to spawn  d
+                    trainsToSpawn = sc.nextInt();
                     while(trainsToSpawn > 0) {
                         stationList[0].spawnTrain(trainCapacity);
-                        //stationList[0].getWaiting().size();
                         trainsToSpawn--;
                     }
                     break;
                 case 2: // Passenger
-                    System.out.print("Enter which station (0-7) to SPAWN passengers: ");
+                    System.out.print("Enter which station (1-8) to SPAWN passengers: ");
                     whereToSpawn = sc.nextInt();
-                    if (whereToSpawn >= 0 || whereToSpawn < 7) {
-                        System.out.print("Enter which station (0-7) to DROP OFF passengers: ");
+                    if (whereToSpawn >= 1 || whereToSpawn <= 8) {
+                        System.out.print("Enter which station (1-8) to DROP OFF passengers: ");
                         passengerDestination = sc.nextInt();
-                        if (passengerDestination >= 0 || passengerDestination <= 7) {
+                        if (passengerDestination >= 1 || passengerDestination <= 8) {
                             System.out.print("Enter no. of passengers to spawn: ");
                             passengersToSpawn = sc.nextInt(); // Get how many to spawn  d
-                            System.out.println("papasok");
+                            whereToSpawn--;
+                            passengerDestination--;
                             while (passengersToSpawn > 0) {
                                 stationList[whereToSpawn].spawnPassenger(passengerDestination, stationList[whereToSpawn], stationList[passengerDestination]); //spawn passenger
                                 passengersToSpawn--;

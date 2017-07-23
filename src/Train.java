@@ -3,7 +3,7 @@
  */
 
 import java.util.ArrayList;
-import java.util.concurrent.locks.Condition;
+
 
 public class Train extends Thread{
 
@@ -23,7 +23,7 @@ public class Train extends Thread{
         passengerCapacity = cap;
         currentStation = here;
 
-      this.start(); // Start thread
+        this.start();
     }
     public void setCurrentStation(Station here)
     {
@@ -53,45 +53,12 @@ public class Train extends Thread{
     }
 
     public void run() {
-        System.out.println("nakapasok");
         int ctr = 0;
-
         while(true) {
-
-            if(currentStation.isSpawn == true && ctr == 0) {
-                this.currentStation.station_load_train(this);
-                currentStation.sendTrain();
-                currentStation = currentStation.getNextStop();
-                currentStation.receiveTrain(this);
-            }
-            else{
-                this.currentStation.departPasaheros();
-                this.currentStation.station_load_train(this);
-                currentStation.sendTrain();
-                currentStation = currentStation.getNextStop();
-                currentStation.receiveTrain(this);
-            }
+            this.currentStation.station_load_train(this);
+            this.currentStation.getNextStop().station_load_train(this);
             ctr++;
         }
-    /* /*
-         // park train currentStation.trainArrived_signal();//for passengers to enter
-        if(currentStation.isSpawn == false)
-            currentStation.receiveTrain(this);
-        System.out.println(currentStation.getqSize());
-        currentStation.getLock().lock();//boarding here
-        currentStation.setCurrentlyLoading();
-        System.out.println(currentStation.getCurrentlyLoading());
-        currentStation.getLock().unlock();
-        //currentStation.loadTrain(countFreeSeats()); // load train depending on free seats
-            /*
-
-        System.out.println("Eror here4");
-        currentStation.trainFull_wait();
-
-        currentStation.getLock().lock();
-        currentStation.sendTrain();
-        currentStation.getLock().unlock();
-        */
     }
 
 }
