@@ -54,10 +54,16 @@ public class Train extends Thread{
 
     public void run() {
         int ctr = 0;
-        while(true) {
+        while(ctr < 50) {
+            System.out.println("Current Station is " + this.currentStation.getStationNo());
             this.currentStation.station_load_train(this);
-            this.currentStation.getNextStop().station_load_train(this);
+            this.setCurrentStation(currentStation.getNextStop());
+            System.out.println("Current Station is " + this.currentStation.getStationNo());
             ctr++;
+            /*
+            Doesn't change stations when there is a passenger for some reason
+            */
+
         }
     }
 

@@ -39,24 +39,26 @@ public class Main {
             switch(choice) {
                 case 1: // Train
                     System.out.println("Enter capacity: ");
-                    trainCapacity = sc.nextInt();
+                    trainCapacity = sc.nextInt(); // Get train capacity
                     System.out.println(stationList[0]);
                     System.out.print("Enter no. of trains to spawn: ");
-                    trainsToSpawn = sc.nextInt();
+                    trainsToSpawn = sc.nextInt(); // Get how many to spawn  d
                     while(trainsToSpawn > 0) {
-                        stationList[0].spawnTrain(trainCapacity);
+                        stationList[0].spawnTrain(trainCapacity);//tinatapos muna to bago magmove
+                        //stationList[0].getWaiting().size();
                         trainsToSpawn--;
                     }
                     break;
                 case 2: // Passenger
                     System.out.print("Enter which station (1-8) to SPAWN passengers: ");
                     whereToSpawn = sc.nextInt();
-                    if (whereToSpawn >= 1 || whereToSpawn <= 8) {
+                    if (whereToSpawn >= 1 || whereToSpawn < 8) {
                         System.out.print("Enter which station (1-8) to DROP OFF passengers: ");
                         passengerDestination = sc.nextInt();
                         if (passengerDestination >= 1 || passengerDestination <= 8) {
                             System.out.print("Enter no. of passengers to spawn: ");
                             passengersToSpawn = sc.nextInt(); // Get how many to spawn  d
+                            System.out.println("papasok");
                             whereToSpawn--;
                             passengerDestination--;
                             while (passengersToSpawn > 0) {
@@ -67,7 +69,7 @@ public class Main {
                     }
                     else {
                         System.out.println("Invalid station.");
-                    } 
+                    }
                     break;
                 case 3:
                     break;

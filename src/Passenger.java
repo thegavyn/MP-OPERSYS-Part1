@@ -25,7 +25,7 @@ public class Passenger extends Thread {
     {
             inside = null;
             System.out.println("Passenger " + passengerNo + 
-                " departed In Station " + (stationNum+1)  + ".");
+                " departed In Station " + (stationNum+2)  + ".");
     }
 
     public boolean checkDepart(int stationNum)//checks if this is destination station
@@ -56,6 +56,8 @@ public class Passenger extends Thread {
 
     public void run() {
         currentStation.station_wait_for_train(this);
+        this.setTrain(currentStation.getCurrentlyLoading());
+        currentStation.waiting.remove(this);
     }
 
 }

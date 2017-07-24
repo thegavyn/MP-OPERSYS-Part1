@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Queue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -18,8 +17,7 @@ public class Station {
     //Variables
     private Station nextStop;
     private int stationNo;
-    private ArrayList<Passenger> waiting; // passengers who want to ride the train
-    //private ArrayList<Train> trainQueue; // queue of trains that are about to grab passengers
+    public ArrayList<Passenger> waiting; // passengers who want to ride the train
     private Train currentlyLoading;
     private boolean isLoaded;
     public boolean isSpawn;
@@ -31,7 +29,6 @@ public class Station {
         trainLeaving = new ReentrantLock().newCondition();
         stationNo = number;
         nextStop = null;
-        //trainQueue = new ArrayList<Train>();
         waiting = new ArrayList<Passenger>();
         lock = new ReentrantLock();
         lockF = new ReentrantLock();
@@ -91,14 +88,13 @@ public class Station {
     }
     public void station_load_train(Train tobeLoaded)
     {
-
+        long time1 = System.currentTimeMillis();
+        System.out.println("In Station Number " + (getStationNo()+1));
         this.getLockF().lock();
         this.getLock().lock();
         this.setCurrentlyLoading(tobeLoaded);
-        currentlyLoading.setCurrentStation(this);
-
         this.departPasaheros();
-        if(waiting.size() > 0) {
+        if(currentlyLoading.getCurrentStation().waiting.size() > 0) {
             try {
                 trainArrived.signalAll();
             } catch (Exception e) {
@@ -106,32 +102,54 @@ public class Station {
             }
             try {
                 trainLeaving.await();
+                System.out.println("Done Boarding Passengers");
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            System.out.println("Done Boarding Passengers");
         }
         else
             System.out.println("No Passengers Moving Stations now");
         this.getLock().unlock();
         this.getLockF().unlock();
-
+        long time2 = System.currentTimeMillis();
+        System.out.println ("Passenger "
+                + "onBoard: " + (time2 - time1));
     }
 
     /*
         Load passengers inside train
      */
     public void station_wait_for_train(Passenger x) {
-
-        if(currentlyLoading.countFreeSeats() >= 0 || waiting.size() == 0) {
         this.getLock().lock();
-        trainArrived_wait();
-        this.onBoard(x);
-        System.out.println("Boarded Train" + currentlyLoading.getName() + x.getName());trainFull_signal();
-        System.out.println("Leaving the Station");
+        try {
+            trainArrived_wait();
+            if (currentlyLoading.countFreeSeats() > 0 && waiting.size() > 0) {
+                this.onBoard(x);
+                System.out.println("Boarded Train " + currentlyLoading.getName() + " " +  x.getName());
+                if(currentlyLoading.countFreeSeats() == 0) {
+                    try {
+                        trainLeaving.signal();
+                        System.out.println("Leaving the Station");
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("Leaving the Station");
+                }
+                else if(waiting.size() == 0) {
+                    try {
+                        trainLeaving.signal();
+                        System.out.println("Leaving the Station");
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("Leaving the Station");
+                }
+            }
+            System.out.println("Current Number of Free Seats on currentlyBoarding " + currentlyLoading.countFreeSeats());
         }
-        System.out.println("Current Number of Free Seats on currentlyBoarding " + currentlyLoading.countFreeSeats());
-        this.getLock().unlock();
+        finally {
+            this.getLock().unlock();
+        }
     }
 
     /*
@@ -145,10 +163,10 @@ public class Station {
         {
             while(ctr < currentlyLoading.getPassengers().size())
             {
-                System.out.println("Do You even go in");
                 if(currentlyLoading.getPassengers().get(ctr).checkDepart(stationNo)) {
                     currentlyLoading.getPassengers().get(ctr).departTrain(stationNo);
-                    currentlyLoading.getPassengers().remove(ctr);
+                    currentlyLoading.getPassengers().remove(ctr);//set it back?
+                    System.out.println(currentlyLoading.getNumberofPassengers() + "Still let's see");
                 }
                 ctr++;
             }
@@ -213,7 +231,8 @@ public class Station {
 
     public void trainFull_signal() {
         try {
-            trainLeaving.signal();
+            if(waiting.size() == 0 || currentlyLoading.countFreeSeats() == 0 )
+                trainLeaving.signal();
         } catch(Exception e) {
             e.printStackTrace();
         }
